@@ -15,16 +15,6 @@ import {
 
 import { Amplify } from 'aws-amplify';
 import amplifyconfig from './src/amplifyconfiguration.json';
-/*
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
-import { Amplify } from 'aws-amplify';
-import amplifyconfig from './src/amplifyconfiguration.json';
-import {
-    withAuthenticator,
-    useAuthenticator
-} from '@aws-amplify/ui-react-native';
-*/
 
 Amplify.configure(amplifyconfig);
 
@@ -45,23 +35,16 @@ const SignOutButton = () => {
 const App = () => {
     return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.container}>
-                <SignOutButton />
-            </View>
+            <Text style={styles.title}>Welcome to the Fishing Predictor App!</Text>
+            <SignOutButton>
+            </SignOutButton>
         </SafeAreaView>
     );    
 }
 
 const styles = StyleSheet.create({
     container: { width: 400, flex: 1, padding: 20, alignSelf: 'center' },
-    todo: { marginBottom: 15 },
-    input: {
-      backgroundColor: '#ddd',
-      marginBottom: 10,
-      padding: 8,
-      fontSize: 18
-    },
-    todoName: { fontSize: 20, fontWeight: 'bold' },
+    title: { fontSize: 20, fontWeight: 'bold', alignSelf: 'center' },
     buttonContainer: {
       alignSelf: 'center',
       backgroundColor: 'black',
