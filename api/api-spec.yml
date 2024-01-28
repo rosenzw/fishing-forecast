@@ -1,0 +1,62 @@
+openapi: 3.0.0
+info:
+  title: Fishing predictor API
+  version: 1.0.0
+servers:
+- url: "https://tjds2xlbe2.execute-api.us-west-2.amazonaws.com/{basePath}"
+  variables:
+    basePath:
+      default: "production"
+paths:
+  /predictions:
+    get:
+      summary: Get Predictions
+      description: Returns a list of predictions in JSON format.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/prediction"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                error: "Internal Server Error"
+      # You can add parameters, security, etc. as needed
+components:
+  schemas:
+    prediction:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          description: Unique ID for the prediction
+          example: UUID for this prediction
+        date:
+          type: string
+          example: 07/21/2024
+        location:
+          type: string
+          description: Name of the location
+          example: Deschutes through Bend
+        details:
+          type: string
+          description: Prediction details
+          example: The Deschutes is fishing well and should continue to do so this week.  Browns and rainbows from 6-18 inches are likely
+        weather:
+          type: string
+          description: Weather prediction
+          example: Partly sunny
+  securitySchemes:
+    FishingForecast:
+      type: "apiKey"
+      name: "Authorization"
+      in: "header"
+      x-amazon-apigateway-authtype: "cognito_user_pools"
