@@ -30,6 +30,7 @@ yarn-error.*
 
 # local env files
 .env*.local
+.env
 
 # typescript
 *.tsbuildinfo
@@ -41,3 +42,5 @@ aws-exports.js
 awsconfiguration.json
 .secret-*
 **.sample
+
+.DS_Store
