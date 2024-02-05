@@ -3,17 +3,17 @@ info:
   title: Fishing predictor API
   version: 1.0.0
 servers:
-- url: "https://tjds2xlbe2.execute-api.us-west-2.amazonaws.com/{basePath}"
-  variables:
-    basePath:
-      default: "production"
+  - url: "https://tjds2xlbe2.execute-api.us-west-2.amazonaws.com/{basePath}"
+    variables:
+      basePath:
+        default: "production"
 paths:
   /predictions:
     get:
       summary: Get Predictions
       description: Returns a list of predictions in JSON format.
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
@@ -21,7 +21,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/prediction"
-        '500':
+        "500":
           description: Internal Server Error
           content:
             application/json:
@@ -29,7 +29,7 @@ paths:
                 error: "Internal Server Error"
       # You can add parameters, security, etc. as needed
       security:
-      - FishingForecast: []
+        - FishingForecast: []
       x-amazon-apigateway-integration:
         type: "aws_proxy"
         httpMethod: "POST"
@@ -64,7 +64,7 @@ paths:
               method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
               method.response.header.Access-Control-Allow-Origin: "'*'"
         requestTemplates:
-          application/json: "{\"statusCode\": 200}"
+          application/json: '{"statusCode": 200}'
         passthroughBehavior: "when_no_match"
 components:
   securitySchemes:
@@ -76,7 +76,7 @@ components:
       x-amazon-apigateway-authorizer:
         type: "cognito_user_pools"
         providerARNs:
-        - "arn:aws:cognito-idp:us-west-2:074935645950:userpool/us-west-2_RrS17PjER"
+          - "arn:aws:cognito-idp:us-west-2:074935645950:userpool/us-west-2_RrS17PjER"
   schemas:
     prediction:
       type: object
@@ -92,7 +92,7 @@ components:
           example: 07/21/2024
         location:
           type: string
-          description: Name of the location
+          description: JSON structure including the id, name, and geo coords (lat, long)
           example: Deschutes through Bend
         details:
           type: string
@@ -100,5 +100,5 @@ components:
           example: The Deschutes is fishing well and should continue to do so this week.  Browns and rainbows from 6-18 inches are likely
         weather:
           type: string
-          description: Weather prediction
-          example: Partly sunny
+          description: Weather prediction [shortForecast format]
+          example: cloudy

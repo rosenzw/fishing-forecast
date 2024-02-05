@@ -17,6 +17,8 @@ import { Amplify } from "aws-amplify";
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { get } from 'aws-amplify/api';
 
+import colors from './assets/colors/colors.js';
+
 Amplify.configure({
     Auth: {
       Cognito: {
@@ -87,16 +89,15 @@ const App = () => {
             <Text style={styles.title}>Welcome to the Fishing Predictor App!</Text>
             <FlatList
             data={predictions}
-            renderItem={({ item }) => (
-                <View style={styles.predictionRow}>
-                    <Text style={styles.headerText}>Location:</Text>
-                    <Text>{item.location}</Text>
-                    <Text style={styles.headerText}>Date:</Text>
-                    <Text>{item.date}</Text>
-                    <Text style={styles.headerText}>Details:</Text>
+            renderItem={({ item }) => {
+                const locationObject = JSON.parse(item.location);
+                const locationName = locationObject.name;
+                return (
+                <View style={styles.locationContainer}>
+                    <Text>{locationName}</Text>
                     <Text>{item.details}</Text>
-                </View>
-            )}
+                </View>);
+            }}
             keyExtractor={item => item.id}
         />
             <SignOutButton>
@@ -110,10 +111,21 @@ const styles = StyleSheet.create({
     title: { fontSize: 20, fontWeight: 'bold', alignSelf: 'center' },
     buttonContainer: {
       alignSelf: 'center',
-      backgroundColor: 'black',
-      paddingHorizontal: 8
+      backgroundColor: colors.button_background,
+      paddingHorizontal: 8,
+      borderRadius: 8
     },
-    buttonText: { color: 'white', padding: 16, fontSize: 18 },
+    locationContainer: {
+        alignSelf: 'center',
+        backgroundColor: colors.location_background,
+        paddingHorizontal: 8,
+        borderRadius: 8,
+        borderTopWidth: 4,
+        borderTopColor: colors.app_background,
+        borderBottomWidth: 4,
+        borderBottomColor: colors.app_background      
+    },
+    buttonText: { color: colors.button_text, padding: 16, fontSize: 18 },
     predictionRow: {
         // Add styles for table rows
         paddingHorizontal: 20
