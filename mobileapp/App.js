@@ -5,37 +5,46 @@ import {
   Pressable,
   SafeAreaView,
   View,
-  FlatList
+  FlatList,
+  Image
 } from 'react-native';
 
 import {
-  withAuthenticator,
-  useAuthenticator
+  useAuthenticator,
+  Authenticator,
+  useTheme
 } from '@aws-amplify/ui-react-native';
 
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Amplify } from "aws-amplify";
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { get } from 'aws-amplify/api';
 
+// Go here for icon included: https://icons.expo.fyi/Index
+import {Ionicons} from '@expo/vector-icons';
+
 import colors from './assets/colors/colors.js';
+
+const Stack = createNativeStackNavigator();
+
 
 Amplify.configure({
     Auth: {
-      Cognito: {
+    Cognito: {
         userPoolId: process.env.EXPO_PUBLIC_AWS_USER_POOL_ID,
         userPoolClientId: process.env.EXPO_PUBLIC_AWS_USER_POOL_CLIENT_ID
-      }
+    }
     },
     API: {
-      REST: {
+    REST: {
         predictions: {
-          endpoint: process.env.EXPO_PUBLIC_AWS_API_ENDPOINT,
-          region: process.env.EXPO_PUBLIC_AWS_API_REGION
+        endpoint: process.env.EXPO_PUBLIC_AWS_API_ENDPOINT,
+        region: process.env.EXPO_PUBLIC_AWS_API_REGION
         }
-      }
     }
-  });
-
+    }
+});
 
 // retrieves only the current value of 'user' from 'useAuthenticator'
 const userSelector = (context) => [context.user];
@@ -50,6 +59,19 @@ const SignOutButton = () => {
       </Text>
     </Pressable>
   );
+};
+
+const MyAppHeader = () => {
+    const {
+      tokens: { space, fontSizes },
+    } = useTheme();
+    return (
+      <View>
+        <Text style={{ color: colors.text_body, fontSize: fontSizes.xxxl, padding: space.xl }}>
+          Fishing Forecast
+        </Text>
+      </View>
+    );
 };
 
 const App = () => {
@@ -83,31 +105,69 @@ const App = () => {
         console.log('GET call failed: ', error);
       }
     }
+
+    const Home = () => {
+        return (
+            <SafeAreaView style={styles.appContainer}>
+                <Ionicons name="rainy" size={32} color="green" />
+                <Ionicons name="fish" size={24} color="black" />
+                <FlatList
+                    style={styles.predictionsContainer}
+                    data={predictions}
+                    renderItem={({ item }) => {
+                        const locationObject = JSON.parse(item.location);
+                        const locationName = locationObject.name;
+                        return (
+                            <View style={styles.locationContainer}>
+                                <Text style={styles.locationTitle}>{locationName}</Text>
+                                <Text>{item.details}</Text>
+                            </View>);
+                    }}
+                    keyExtractor={item => item.id}
+                />
+            </SafeAreaView>
+        )
+    }
     
     return (
-        <SafeAreaView style={styles.container}>
-            <Text style={styles.title}>Welcome to the Fishing Predictor App!</Text>
-            <FlatList
-            data={predictions}
-            renderItem={({ item }) => {
-                const locationObject = JSON.parse(item.location);
-                const locationName = locationObject.name;
-                return (
-                <View style={styles.locationContainer}>
-                    <Text>{locationName}</Text>
-                    <Text>{item.details}</Text>
-                </View>);
-            }}
-            keyExtractor={item => item.id}
-        />
-            <SignOutButton>
-            </SignOutButton>
-        </SafeAreaView>
+        <Authenticator.Provider>
+            <Authenticator
+                // will wrap every subcomponent
+                Container={(props) => (
+                    // reuse default `Container` and apply custom background
+                    <Authenticator.Container
+                        {...props}
+                        style={{ borderColor:colors.button_background, backgroundColor: colors.app_background}}
+                    />
+                )}
+                // will render on every subcomponent
+                Header={MyAppHeader}>
+                <View style={styles.headerContainer}>
+                    <Image
+                        source={require('./assets/images/profile.png')}
+                        style={styles.profileImage}
+                    />
+                    <Image
+                        source={require('./assets/images/logo.png')}
+                        style={styles.logoImage}
+                    />
+                    <Text style={styles.title}>Fishing Forecast</Text>
+                    <Ionicons name="settings-sharp" size={24} color={colors.text_body} />
+                </View>
+                <NavigationContainer>
+                    <Stack.Navigator>
+                        <Stack.Screen name="Home" component={Home} options={{headerShown:false}}/>
+                    </Stack.Navigator>
+                </NavigationContainer>
+                <SignOutButton>
+                </SignOutButton>
+            </Authenticator>
+        </Authenticator.Provider>
     );    
 }
 
 const styles = StyleSheet.create({
-    container: { width: 400, flex: 1, padding: 20, alignSelf: 'center' },
+    appContainer: { flex: 1, padding: 20, alignSelf: 'center', margin: 10 },
     title: { fontSize: 20, fontWeight: 'bold', alignSelf: 'center' },
     buttonContainer: {
       alignSelf: 'center',
@@ -125,10 +185,35 @@ const styles = StyleSheet.create({
         borderBottomWidth: 4,
         borderBottomColor: colors.app_background      
     },
+    locationTitle: {
+        fontSize: 24,
+        alignSelf: 'flex-start'
+    },
+    predictionsContainer: {
+        alignSelf: 'center',
+        backgroundColor: colors.app_background
+    },
     buttonText: { color: colors.button_text, padding: 16, fontSize: 18 },
     predictionRow: {
         // Add styles for table rows
         paddingHorizontal: 20
+    },
+    headerContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingHorizontal:0,
+        alignItems: 'center'
+    },
+    profileImage: {
+        width: 50,
+        height: 50,
+        borderRadius: 50,
+        paddingTop:20
+    },
+    logoImage:{
+        width: 50,
+        height: 50,
+        paddingTop:20
     },
     headerText: {
         fontWeight: 'bold',
@@ -136,4 +221,4 @@ const styles = StyleSheet.create({
     },
   });
 
-export default withAuthenticator(App);
+export default App;
