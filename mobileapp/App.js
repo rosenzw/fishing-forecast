@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   View,
   FlatList,
+  Button,
   Image
 } from 'react-native';
 
@@ -106,11 +107,23 @@ const App = () => {
       }
     }
 
-    const Home = () => {
+    const Home = ({navigation}) => {
         return (
             <SafeAreaView style={styles.appContainer}>
-                <Ionicons name="rainy" size={32} color="green" />
-                <Ionicons name="fish" size={24} color="black" />
+                <View style={styles.headerContainer}>
+                    <Image
+                        source={require('./assets/images/profile.png')}
+                        style={styles.profileImage}
+                    />
+                    <Image
+                        source={require('./assets/images/logo.png')}
+                        style={styles.logoImage}
+                    />
+                    <Text style={styles.title}>Fishing Forecast</Text>
+                    <Pressable onPress={() => navigation.navigate('Settings')}>
+                        <Ionicons name="settings-sharp" size={24} color={colors.text_body} />
+                    </Pressable>
+                </View>
                 <FlatList
                     style={styles.predictionsContainer}
                     data={predictions}
@@ -118,13 +131,42 @@ const App = () => {
                         const locationObject = JSON.parse(item.location);
                         const locationName = locationObject.name;
                         return (
-                            <View style={styles.locationContainer}>
-                                <Text style={styles.locationTitle}>{locationName}</Text>
-                                <Text>{item.details}</Text>
-                            </View>);
+                            <Pressable onPress={() => navigation.navigate('Details', {prediction: item})}>
+                                <View style={styles.locationContainer}>
+                                    <Text style={styles.locationTitle}>{locationName}</Text>
+                                    <View style={styles.iconContainer}>
+                                        <Ionicons name="rainy" size={32} color="green" />
+                                        <Ionicons name="fish" size={24} color="black" />
+                                    </View>
+                                </View>
+                            </Pressable>
+                            );
                     }}
                     keyExtractor={item => item.id}
                 />
+            </SafeAreaView>
+        )
+    }
+
+    const Settings = ({navigation}) => {
+        return (
+            <SafeAreaView style={styles.appContainer}>
+                <Button title="Go back" onPress={() => navigation.goBack()} />
+                <Text>Settings setup</Text>
+            </SafeAreaView>
+        )
+    }
+
+    const Details = ({navigation, route}) => {
+        const prediction = route.params.prediction;
+        const locationObject = JSON.parse(prediction.location);
+        const locationName = locationObject.name;   
+
+        return (
+            <SafeAreaView style={styles.appContainer}>
+                <Button title="Go back" onPress={() => navigation.goBack()} />
+                <Text>Details for {locationName}</Text> 
+                <Text>{prediction.details}</Text>
             </SafeAreaView>
         )
     }
@@ -142,21 +184,11 @@ const App = () => {
                 )}
                 // will render on every subcomponent
                 Header={MyAppHeader}>
-                <View style={styles.headerContainer}>
-                    <Image
-                        source={require('./assets/images/profile.png')}
-                        style={styles.profileImage}
-                    />
-                    <Image
-                        source={require('./assets/images/logo.png')}
-                        style={styles.logoImage}
-                    />
-                    <Text style={styles.title}>Fishing Forecast</Text>
-                    <Ionicons name="settings-sharp" size={24} color={colors.text_body} />
-                </View>
                 <NavigationContainer>
-                    <Stack.Navigator>
+                    <Stack.Navigator initialRouteName="Home">
                         <Stack.Screen name="Home" component={Home} options={{headerShown:false}}/>
+                        <Stack.Screen name="Settings" component={Settings} />
+                        <Stack.Screen name="Details" component={Details} />
                     </Stack.Navigator>
                 </NavigationContainer>
                 <SignOutButton>
@@ -175,8 +207,13 @@ const styles = StyleSheet.create({
       paddingHorizontal: 8,
       borderRadius: 8
     },
+    iconContainer: {
+        flexDirection: 'row',
+        alignSelf: 'flex-end',
+    },
     locationContainer: {
-        alignSelf: 'center',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         backgroundColor: colors.location_background,
         paddingHorizontal: 8,
         borderRadius: 8,
@@ -187,7 +224,6 @@ const styles = StyleSheet.create({
     },
     locationTitle: {
         fontSize: 24,
-        alignSelf: 'flex-start'
     },
     predictionsContainer: {
         alignSelf: 'center',
