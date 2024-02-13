@@ -1,8 +1,8 @@
 #!/bin/bash
 
 source ../.env
-username="<username>"
-password="<password>"
+username="jesse"
+password="Jesse123!"
 clientid=$EXPO_PUBLIC_AWS_USER_POOL_CLIENT_ID
 region="us-west-2"
 aws_profile="yampa"
