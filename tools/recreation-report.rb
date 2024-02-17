@@ -4,6 +4,8 @@ require 'httparty'
 require 'json'
 require 'nokogiri'
 require 'selenium-webdriver'
+require 'date'
+require 'open-uri'
 
 waterbodies = ["ANTELOPE FLAT RESERVOIR", "BIKINI POND", "CENTURY GRAVEL POND", "CRANE PRAIRIE RESERVOIR", "CRESCENT LAKE", "CROOKED RIVER", "DAVIS LAKE", "DESCHUTES RIVER, mouth to Pelton Dam", "DESCHUTES RIVER, Lake Billy Chinook to Benham Falls", "DESCHUTES RIVER, Benham Falls to Little Lava Lake", "EAST LAKE", "FALL RIVER", "HAYSTACK RESERVOIR", "HOOD RIVER", "HOSMER LAKE", "LAKE BILLY CHINOOK", "LAURANCE LAKE", "LAVA LAKE, Big", "METOLIUS RIVER", "NORTH TWIN LAKE", "OCHOCO RESERVOIR", "ODELL LAKE", "PAULINA LAKE", "PINE HOLLOW RESERVOIR", "PINE NURSERY POND", "PRINEVILLE RESERVOIR", "SOUTH TWIN LAKE", "SPRAGUE POND", "TAYLOR LAKE (Wasco County)", "THREE CREEK LAKE", "WALTON LAKE", "WICKIUP RESERVOIR"]
 
@@ -11,17 +13,26 @@ waterbodies = ["ANTELOPE FLAT RESERVOIR", "BIKINI POND", "CENTURY GRAVEL POND", 
 # driver_path = "path/to/chromedriver"
 
 # Open Chrome browser
-driver = Selenium::WebDriver.for :chrome
+#driver = Selenium::WebDriver.for :chrome
 
 # Navigate to ODFW webpage
-driver.get "https://myodfw.com/recreation-report/fishing-report/central-zone"
+#driver.get "https://myodfw.com/recreation-report/fishing-report/central-zone"
 
 # Wait for page to load
-sleep 5
+#sleep 5
 
 # Find all waterbody headings
-elements = driver.find_element(css: ".rec-report-wrapper")
-paragraphs = elements.find_elements(:tag_name, 'p')
+#report = driver.find_element(css: ".rec-report-wrapper")
+
+doc = Nokogiri::HTML.parse(URI.open('https://myodfw.com/recreation-report/fishing-report/central-zone'))
+report = doc.css(".rec-report-wrapper")
+
+
+d = Date.today.strftime("%Y-%m-%d")
+File.write("report-#{d}.txt", report.text)
+
+#paragraphs = doc.find_elements(:tag_name, 'p')
+paragraphs = doc.css('p')
 
 # Initialize empty array for waterbody data
 data = []
@@ -45,8 +56,8 @@ paragraphs.each do |paragraph|
 end
 
 # Close browser
-driver.quit
+#driver.quit
 
 # Convert data to JSON and print
 json_data = JSON.pretty_generate(data)
-puts json_data
+File.write("report-#{d}.json", json_data)
